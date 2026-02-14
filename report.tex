@@ -2,19 +2,14 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{hyperref}
-\usepackage{float}       % For [H] table placement
-\usepackage{titlesec}    % For compact section spacing
-
-% --- Reduce white space ---
+\usepackage{float}
 \usepackage[margin=2.5cm]{geometry}
-\setlength{\floatsep}{4pt plus 1pt minus 1pt}
-\setlength{\textfloatsep}{6pt plus 1pt minus 1pt}
-\setlength{\intextsep}{4pt plus 1pt minus 1pt}
-\setlength{\abovecaptionskip}{4pt}
-\setlength{\belowcaptionskip}{2pt}
-\setlength{\parskip}{2pt plus 1pt}
-\titlespacing*{\section}{0pt}{8pt}{4pt}
-\titlespacing*{\subsection}{0pt}{6pt}{2pt}
+
+% --- Moderate spacing reduction ---
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{8pt plus 2pt minus 2pt}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{0pt}
 
 \begin{document}
 
@@ -27,73 +22,71 @@ Three open-source RAG frameworks were evaluated: \textbf{Haystack} (retrieval-fi
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Framework} & \textbf{Philosophy} & \textbf{Best For} & \textbf{Architecture Style} \\ \midrule
-Haystack   & Retrieval-first orchestration & Production RAG          & Explicit pipeline graph \\
-LangChain  & Agent-first composition       & Tool-heavy applications & Chain/agent abstraction \\
-LlamaIndex & Index-first knowledge system  & Rapid RAG prototyping   & Index abstraction layer \\ \bottomrule
+Haystack   & Retrieval-first orchestration & Production RAG          & Explicit pipeline graph   \\
+LangChain  & Agent-first composition       & Tool-heavy applications & Chain/agent abstraction   \\
+LlamaIndex & Index-first knowledge system  & Rapid RAG prototyping   & Index abstraction layer   \\ \bottomrule
 \end{tabular}
 \caption{High-level positioning of the evaluated frameworks.}
 \label{tab:positioning}
 \end{table}
 
-\subsection{Core RAG Capabilities, Evaluation, and Multimodal Support}
-Table~\ref{tab:capabilities} consolidates retrieval features, production readiness, and multimodal support.
+\subsection{Core RAG Capabilities}
 \begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-\multicolumn{4}{@{}l}{\textit{Retrieval \& Pipeline}} \\
-Dense retrieval      & Native     & Native               & Native              \\
-Sparse (BM25)        & Strong     & Basic                & Limited             \\
-Hybrid search        & Built-in   & Manual configuration & Custom              \\
-Rerankers            & Built-in   & Manual integration   & Add-on              \\
-Router pipelines     & Native     & Manual logic         & Query engine routing \\
-Multi-step RAG       & Explicit   & Agent-based          & Query planners      \\
-Streaming            & Supported  & Supported            & Supported           \\
-Async pipelines      & Supported  & Partial              & Partial             \\
-Metadata filtering   & Strong     & Supported            & Supported           \\ \midrule
-\multicolumn{4}{@{}l}{\textit{Evaluation \& Production}} \\
-Retrieval metrics    & Supported  & Not native           & Limited             \\
-Faithfulness scoring & Supported  & Not native           & Limited             \\
-Groundedness tools   & Supported  & Not native           & Limited             \\
-Logging and tracing  & Built-in   & LangSmith (cloud)    & Basic               \\
-Production stability & High       & Rapid API evolution   & Moderate            \\ \midrule
-\multicolumn{4}{@{}l}{\textit{Multimodal \& Structured Data}} \\
-Image embeddings       & Supported          & Stronger ecosystem & Early-stage        \\
-Vision-language models & Manual integration & Supported          & Limited            \\
-Table QA               & Custom pipelines   & Tool-based         & Structured indexes \\
-CSV ingestion          & Supported          & Supported          & Supported          \\ \bottomrule
+Dense retrieval      & Native       & Native               & Native                \\
+Sparse (BM25)        & Strong       & Basic                & Limited               \\
+Hybrid search        & Built-in     & Manual configuration & Custom implementation \\
+Rerankers            & Built-in     & Manual integration   & Add-on                \\
+Router pipelines     & Native       & Manual logic         & Query engine routing  \\
+Multi-step RAG       & Explicit     & Agent-based          & Query planners        \\
+Evaluation tools     & Built-in     & External             & Limited               \\
+Streaming            & Supported    & Supported            & Supported             \\
+Async pipelines      & Supported    & Partial              & Partial               \\
+Metadata filtering   & Strong       & Supported            & Supported             \\
+Multimodal support   & Basic        & Broader ecosystem    & Early-stage           \\ \bottomrule
 \end{tabular}
-\caption{Core capabilities, evaluation, and multimodal support.}
-\label{tab:capabilities}
+\caption{Comparison of core RAG capabilities across the evaluated frameworks.}
+\label{tab:rag-capabilities}
 \end{table}
 
-\subsection{Infrastructure: Document Stores, Vector Databases, and LLM Backends}
-Table~\ref{tab:infrastructure} combines vector database compatibility and LLM backend support.
+\subsection{Document Store and Vector Database Support}
 \begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Backend} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-\multicolumn{4}{@{}l}{\textit{Vector / Document Stores}} \\
-Qdrant                 & Native    & Supported            & Supported \\
-Elasticsearch          & Supported & Supported            & Limited   \\
-OpenSearch             & Supported & Limited              & Limited   \\
-Milvus                 & Supported & Supported            & Supported \\
-Pinecone               & Supported & Supported            & Supported \\
-InMemory store         & Native    & Limited              & Limited   \\
-Hybrid vector + sparse & Strong    & Manual configuration & Limited   \\ \midrule
-\multicolumn{4}{@{}l}{\textit{LLM Backends (local + cloud)}} \\
-vLLM                             & OpenAI-compatible & Supported & Supported \\
-Ollama                           & Native            & Supported & Supported \\
-HuggingFace Transformers (local) & Basic wrapper     & Supported & Supported \\
-Text Generation Inference (TGI)  & Supported         & Supported & Supported \\
-OpenAI API                       & Supported         & Supported & Supported \\ \bottomrule
+Qdrant                   & Native    & Supported            & Supported \\
+Elasticsearch            & Supported & Supported            & Limited   \\
+OpenSearch               & Supported & Limited              & Limited   \\
+Milvus                   & Supported & Supported            & Supported \\
+Pinecone                 & Supported & Supported            & Supported \\
+InMemory store           & Native    & Limited              & Limited   \\
+Hybrid vector + sparse   & Strong    & Manual configuration & Limited   \\ \bottomrule
 \end{tabular}
-\caption{Document store, vector database, and LLM backend compatibility.}
-\label{tab:infrastructure}
+\caption{Document store and vector database compatibility.}
+\label{tab:vector-db}
+\end{table}
+
+\subsection{LLM Backend Flexibility}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Backend} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
+vLLM                              & OpenAI-compatible & Supported & Supported \\
+Ollama                            & Native            & Supported & Supported \\
+HuggingFace Transformers (local)  & Basic wrapper     & Supported & Supported \\
+Text Generation Inference (TGI)   & Supported         & Supported & Supported \\
+OpenAI API                        & Supported         & Supported & Supported \\ \bottomrule
+\end{tabular}
+\caption{LLM backend flexibility with emphasis on local deployment options.}
+\label{tab:llm-backends}
 \end{table}
 
 \subsection{Pipeline Configurability}
@@ -103,15 +96,48 @@ OpenAI API                       & Supported         & Supported & Supported \\ 
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Requirement} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Configurable chunking      & Component-level   & Preprocessing stage  & Index configuration    \\
-Dynamic retriever swapping & Supported         & Manual chain rebuild & Index rebuild required \\
-Toggle reranker on/off     & Easy              & Manual               & Manual                 \\
-Switch LLM backend         & Supported         & Supported            & Supported              \\
-Expose parameters via API  & Clean integration & More manual setup    & Moderate               \\
-Visual pipeline graph      & Available         & Not available        & Not available          \\ \bottomrule
+Configurable chunking           & Component-level    & Preprocessing stage & Index configuration \\
+Dynamic retriever swapping      & Supported          & Manual chain rebuild & Index rebuild required \\
+Toggle reranker on/off          & Easy               & Manual               & Manual              \\
+Switch LLM backend              & Supported          & Supported            & Supported           \\
+Expose parameters via API       & Clean integration  & More manual setup    & Moderate            \\
+Visual pipeline graph           & Available          & Not available        & Not available       \\ \bottomrule
 \end{tabular}
 \caption{Pipeline configurability for runtime customization.}
 \label{tab:configurability}
+\end{table}
+
+\subsection{Evaluation and Production Readiness}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
+Retrieval metrics      & Supported  & Not native          & Limited  \\
+Faithfulness scoring   & Supported  & Not native          & Limited  \\
+Groundedness tools     & Supported  & Not native          & Limited  \\
+Logging and tracing    & Built-in   & LangSmith (cloud)   & Basic    \\
+Production stability   & High       & Rapid API evolution  & Moderate \\ \bottomrule
+\end{tabular}
+\caption{Evaluation tools and production readiness.}
+\label{tab:production}
+\end{table}
+
+\subsection{Multimodal and Structured Data Support}
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
+Image embeddings         & Supported          & Stronger ecosystem & Early-stage       \\
+Vision-language models   & Manual integration & Supported          & Limited           \\
+Table QA                 & Custom pipelines   & Tool-based         & Structured indexes \\
+CSV ingestion            & Supported          & Supported          & Supported          \\ \bottomrule
+\end{tabular}
+\caption{Multimodal and structured data capabilities.}
+\label{tab:multimodal}
 \end{table}
 
 \section{Retrieval Capabilities}
