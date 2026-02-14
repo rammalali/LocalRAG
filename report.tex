@@ -2,6 +2,19 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{hyperref}
+\usepackage{float}       % For [H] table placement
+\usepackage{titlesec}    % For compact section spacing
+
+% --- Reduce white space ---
+\usepackage[margin=2.5cm]{geometry}
+\setlength{\floatsep}{4pt plus 1pt minus 1pt}
+\setlength{\textfloatsep}{6pt plus 1pt minus 1pt}
+\setlength{\intextsep}{4pt plus 1pt minus 1pt}
+\setlength{\abovecaptionskip}{4pt}
+\setlength{\belowcaptionskip}{2pt}
+\setlength{\parskip}{2pt plus 1pt}
+\titlespacing*{\section}{0pt}{8pt}{4pt}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
 
 \begin{document}
 
@@ -9,7 +22,7 @@
 Three open-source RAG frameworks were evaluated: \textbf{Haystack} (retrieval-first), \textbf{LangChain} (agent-first), and \textbf{LlamaIndex} (index-first). The criteria included architectural flexibility, local deployment, multilingual support (English/Arabic), retrieval strategies, configurability, and production-readiness.
 
 \subsection{High-Level Positioning}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \begin{tabular}{@{}llll@{}}
 \toprule
@@ -24,7 +37,7 @@ LlamaIndex & Index-first knowledge system  & Rapid RAG prototyping   & Index abs
 
 \subsection{Core RAG Capabilities, Evaluation, and Multimodal Support}
 Table~\ref{tab:capabilities} consolidates retrieval features, production readiness, and multimodal support.
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -58,7 +71,7 @@ CSV ingestion          & Supported          & Supported          & Supported    
 
 \subsection{Infrastructure: Document Stores, Vector Databases, and LLM Backends}
 Table~\ref{tab:infrastructure} combines vector database compatibility and LLM backend support.
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -84,7 +97,7 @@ OpenAI API                       & Supported         & Supported & Supported \\ 
 \end{table}
 
 \subsection{Pipeline Configurability}
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
@@ -101,15 +114,10 @@ Visual pipeline graph      & Available         & Not available        & Not avai
 \label{tab:configurability}
 \end{table}
 
-%% ============================================================
-%% Retrieval Capabilities & Document Processing
-%% ============================================================
-
 \section{Retrieval Capabilities}
 
 \subsection{Dense Retrieval}
 Embeds documents and queries into a shared vector space; retrieves by cosine/dot-product similarity. Captures semantic meaning across English and Arabic, well-suited for natural language questions.
-
 \begin{center}
 \texttt{Text $\rightarrow$ Embedder $\rightarrow$ Vector Store $\leftarrow$ Query Embedder $\leftarrow$ Query}
 \end{center}
@@ -119,14 +127,12 @@ Keyword-based scoring using term frequency. Highly effective for exact-match que
 
 \subsection{Hybrid Retrieval}
 Fuses dense and sparse scores into a single ranking. Significantly improves retrieval robustness and is highly recommended for enterprise RAG.
-
 \begin{center}
 \texttt{BM25 Score + Dense Score $\rightarrow$ Fused Ranking $\rightarrow$ Top-K Documents}
 \end{center}
 
 \subsection{Reranking (Cross-Encoder)}
 A second-stage model re-evaluates retrieved documents before passing them to the LLM. Reduces hallucinations and boosts answer quality at the cost of slight additional latency.
-
 \begin{center}
 \texttt{Retriever $\rightarrow$ Reranker $\rightarrow$ LLM}
 \end{center}
