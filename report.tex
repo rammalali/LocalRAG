@@ -163,6 +163,170 @@ A second-stage model re-evaluates retrieved documents before passing them to the
 \texttt{Retriever $\rightarrow$ Reranker $\rightarrow$ LLM}
 \end{center}
 
+\section{Image and Multimodal Support}
+
+\subsection{Document Image Embedding}
+Haystack allows embedding images stored inside \texttt{Document} objects using multimodal embedding models (e.g., CLIP). This enables retrieval of visual content---charts, diagrams, scanned pages---alongside textual documents via image-to-text similarity search.
+
+This is useful when the corpus contains mixed media (e.g., technical manuals with diagrams, financial reports with charts). Retrieved images can then be passed to a vision-language model (VLM) for interpretation, since the embedding alone does not understand the image content.
+
+\begin{center}
+\texttt{Image $\rightarrow$ CLIP Embedder $\rightarrow$ Vector Store $\leftarrow$ Query Embedder $\leftarrow$ Text Query}
+\end{center}
+
+\textbf{Limitation:} Embedding-based image retrieval finds visually or semantically similar images but does not interpret their content. To answer questions about a retrieved chart or diagram, a vision-capable LLM (e.g., GPT-4V, LLaVA) must be added downstream.
+
+\section{Architecture and Orchestration}
+
+\subsection{Router Pipelines}
+
+Routers are Haystack components that implement \textbf{conditional branching} within a pipeline graph. Rather than processing data, a router inspects incoming data and \textit{directs} it to different downstream components based on evaluated criteria. This turns a linear pipeline into a dynamic, multi-branch workflow.
+
+\subsubsection{Why Routers Matter}
+Without routers, every query or document follows the same path through the pipeline. In practice, different inputs require different handling:
+\begin{itemize}
+\item An Arabic query should use an Arabic-tuned embedder; an English query should use a different one.
+\item A PDF file needs a PDF converter; a Markdown file needs a Markdown converter.
+\item A finance-related query should search the finance index; a legal query should search the legal index.
+\end{itemize}
+Routers make this possible by evaluating a condition on each input and forwarding it to the appropriate branch.
+
+\subsubsection{Available Router Types}
+Haystack provides six router components, each suited to different routing needs:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Router} & \textbf{Input} & \textbf{Decision Method} & \textbf{Use Case} \\ \midrule
+\texttt{FileTypeRouter}       & File paths     & MIME type detection       & Multi-format ingestion  \\
+\texttt{MetadataRouter}       & Documents      & Metadata field filters    & Language/category split  \\
+\texttt{TextLanguageRouter}   & Text string    & Language detection        & Multilingual query routing \\
+\texttt{ConditionalRouter}    & Any            & Jinja2 expressions        & Custom logic branching  \\
+\texttt{TransformersTextRouter}       & Text string    & HF classification model   & Trained query classification \\
+\texttt{ZeroShotTextRouter}   & Text string    & Zero-shot NLI model       & Label-free classification \\ \bottomrule
+\end{tabular}
+\caption{Haystack router components and their decision mechanisms.}
+\label{tab:routers}
+\end{table}
+
+\subsubsection{Example 1: Multi-Format File Ingestion}
+A common indexing scenario: the system receives PDFs, text files, and Markdown files. Each format requires a different converter. The \texttt{FileTypeRouter} inspects each file's MIME type and routes it to the correct converter. All converted documents are then joined and written to the store.
+
+\begin{center}
+\small
+\texttt{Files $\rightarrow$ FileTypeRouter $\rightarrow$
+$\begin{cases}
+\texttt{text/plain} \rightarrow \texttt{TextConverter} \\
+\texttt{application/pdf} \rightarrow \texttt{PDFConverter} \\
+\texttt{text/markdown} \rightarrow \texttt{MarkdownConverter}
+\end{cases}$
+$\rightarrow$ Joiner $\rightarrow$ Writer}
+\end{center}
+
+\subsubsection{Example 2: Multilingual Query Routing}
+In a bilingual RAG system (English/Arabic), the \texttt{TextLanguageRouter} detects the query language and sends it to the appropriate retriever, each connected to a language-specific document store and embedding model.
+
+\begin{center}
+\small
+\texttt{Query $\rightarrow$ TextLanguageRouter $\rightarrow$
+$\begin{cases}
+\texttt{en} \rightarrow \texttt{EnglishRetriever} \\
+\texttt{ar} \rightarrow \texttt{ArabicRetriever}
+\end{cases}$
+$\rightarrow$ Joiner $\rightarrow$ LLM}
+\end{center}
+
+\subsubsection{Example 3: Domain-Specific Routing with ConditionalRouter}
+The \texttt{ConditionalRouter} evaluates arbitrary Jinja2 expressions, making it the most flexible option. For example, an LLM first classifies the query topic, and the router branches based on the classification result:
+
+\begin{center}
+\small
+\texttt{Query $\rightarrow$ Classifier LLM $\rightarrow$ ConditionalRouter $\rightarrow$
+$\begin{cases}
+\texttt{``finance''} \rightarrow \texttt{FinanceRetriever} \\
+\texttt{``legal''} \rightarrow \texttt{LegalRetriever} \\
+\texttt{default} \rightarrow \texttt{GeneralRetriever}
+\end{cases}$}
+\end{center}
+
+Each route is defined as a condition--output pair. Routes are evaluated in order, and the first matching condition is selected. A catch-all route (\texttt{\{\{ True \}\}}) can serve as the default fallback.
+
+\subsubsection{Example 4: Document Language Routing in Indexing}
+During indexing, documents are classified by language using \texttt{DocumentLanguageClassifier}, which writes the detected language into each document's metadata. The \texttt{MetadataRouter} then inspects \texttt{meta.language} and routes documents to language-specific stores:
+
+\begin{center}
+\small
+\texttt{Converter $\rightarrow$ LanguageClassifier $\rightarrow$ MetadataRouter $\rightarrow$
+$\begin{cases}
+\texttt{language == ``en''} \rightarrow \texttt{EnglishStore} \\
+\texttt{language == ``ar''} \rightarrow \texttt{ArabicStore} \\
+\texttt{unmatched} \rightarrow \texttt{discard/log}
+\end{cases}$}
+\end{center}
+
+\subsection{Multi-LLM Backend Support}
+Haystack's architecture is backend-agnostic---the same pipeline definition works regardless of which LLM serves the generation step. Supported backends include vLLM (via OpenAI-compatible API), Ollama, HuggingFace Transformers (local inference), Text Generation Inference (TGI), and any OpenAI-compatible API endpoint. Switching backends requires changing only the generator component configuration, not the pipeline structure.
+
+\section{Evaluation and Monitoring}
+
+\subsection{Retrieval Evaluation}
+Haystack includes built-in evaluators for measuring retrieval quality using standard information retrieval metrics:
+\begin{itemize}
+\item \textbf{Recall@K}: Proportion of relevant documents found in the top-K results.
+\item \textbf{Precision@K}: Proportion of top-K results that are relevant.
+\item \textbf{Mean Reciprocal Rank (MRR)}: Average inverse rank of the first relevant result.
+\end{itemize}
+These metrics allow scientific measurement of retrieval quality and enable data-driven tuning of retriever parameters (e.g., embedding model, top-K, chunk size).
+
+\subsection{Faithfulness and Groundedness}
+The \texttt{FaithfulnessEvaluator} uses an LLM to assess whether a generated answer can be logically inferred from the retrieved context documents. It does not require ground-truth labels, making it suitable for production monitoring without curated test sets.
+
+This metric checks two critical properties:
+\begin{itemize}
+\item \textbf{Faithfulness}: Did the answer use information from the retrieved documents?
+\item \textbf{Hallucination detection}: Did the model fabricate information not present in the context?
+\end{itemize}
+This capability is enterprise-critical for domains where factual accuracy is non-negotiable (legal, medical, financial).
+
+\section{Advanced RAG Patterns}
+
+\subsection{Query Rewriting}
+An LLM reformulates the user's raw query into a more retrieval-friendly form before it reaches the retriever. This is particularly useful when user queries are vague, colloquial, or in Arabic dialect. The rewritten query preserves the user's intent while improving retrieval precision.
+\begin{center}
+\texttt{User Query $\rightarrow$ LLM (rewrite) $\rightarrow$ Optimized Query $\rightarrow$ Retriever}
+\end{center}
+
+\subsection{Multi-Step RAG}
+For complex questions that cannot be answered from a single retrieval pass, the LLM decomposes the question into sub-queries, retrieves documents for each, and synthesizes a final answer from the combined evidence.
+\begin{center}
+\texttt{Complex Question $\rightarrow$ LLM (decompose) $\rightarrow$
+$\begin{cases}
+\text{Sub-query A} \rightarrow \text{Retrieve A} \\
+\text{Sub-query B} \rightarrow \text{Retrieve B}
+\end{cases}$
+$\rightarrow$ LLM (synthesize) $\rightarrow$ Final Answer}
+\end{center}
+This pattern is essential for multi-document reasoning and comparative questions.
+
+\section{Production Features}
+
+\subsection{Streaming}
+Haystack supports token-level streaming from the LLM, allowing the UI to display partial responses as they are generated. This significantly improves perceived latency and user experience in interactive applications.
+
+\subsection{Async Pipelines}
+Asynchronous pipeline execution enables concurrent request handling, which is necessary when serving the RAG system behind an API. Multiple users can submit queries simultaneously without blocking each other.
+
+\subsection{Docker Compatibility}
+Haystack integrates cleanly with containerized deployments. A typical production setup uses Docker Compose to orchestrate multiple services:
+\begin{itemize}
+\item \textbf{Qdrant} or \textbf{Elasticsearch}: Vector/document store
+\item \textbf{vLLM} or \textbf{Ollama}: Local LLM inference server
+\item \textbf{Haystack application}: The RAG pipeline service
+\end{itemize}
+This architecture enables fully local, air-gapped deployment with no external API dependencies.
+
 \section{Document Processing}
 
 \subsection{Chunking Strategies}
