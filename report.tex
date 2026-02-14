@@ -1,241 +1,145 @@
 \documentclass{article}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{booktabs} % Required for professional table rules
-\usepackage{hyperref} % Required for hyperlinks
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
 
 \begin{document}
 
 \section{Framework Evaluation and Comparative Analysis}
-During the research and development phase, three leading open-source frameworks for building Retrieval-Augmented Generation (RAG) systems were evaluated:
-\begin{itemize}
-    \item \textbf{Haystack} -- a retrieval-first orchestration framework,
-    \item \textbf{LangChain} -- an agent-first composition framework, and
-    \item \textbf{LlamaIndex} -- an index-first knowledge system framework.
-\end{itemize}
-The evaluation criteria included architectural flexibility, local deployment capabilities, multilingual support (English and Arabic), retrieval strategies, configurability, and production-readiness. The following subsections present detailed comparisons across these dimensions.
+Three open-source RAG frameworks were evaluated: \textbf{Haystack} (retrieval-first), \textbf{LangChain} (agent-first), and \textbf{LlamaIndex} (index-first). The criteria included architectural flexibility, local deployment, multilingual support (English/Arabic), retrieval strategies, configurability, and production-readiness.
 
 \subsection{High-Level Positioning}
-Table~\ref{tab:positioning} summarizes the core philosophy, target use case, and architectural style of each framework.
 \begin{table}[htbp]
 \centering
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Framework} & \textbf{Philosophy} & \textbf{Best For} & \textbf{Architecture Style} \\ \midrule
-Haystack   & Retrieval-first orchestration & Production RAG          & Explicit pipeline graph   \\
-LangChain  & Agent-first composition       & Tool-heavy applications & Chain/agent abstraction   \\
-LlamaIndex & Index-first knowledge system  & Rapid RAG prototyping   & Index abstraction layer   \\ \bottomrule
+Haystack   & Retrieval-first orchestration & Production RAG          & Explicit pipeline graph \\
+LangChain  & Agent-first composition       & Tool-heavy applications & Chain/agent abstraction \\
+LlamaIndex & Index-first knowledge system  & Rapid RAG prototyping   & Index abstraction layer \\ \bottomrule
 \end{tabular}
 \caption{High-level positioning of the evaluated frameworks.}
 \label{tab:positioning}
 \end{table}
 
-\subsection{Core RAG Capabilities}
-Table~\ref{tab:rag-capabilities} compares the three frameworks across key RAG features, including retrieval modes, pipeline flexibility, and evaluation support.
+\subsection{Core RAG Capabilities, Evaluation, and Multimodal Support}
+Table~\ref{tab:capabilities} consolidates retrieval features, production readiness, and multimodal support.
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Dense retrieval      & Native       & Native               & Native                \\
-Sparse (BM25)        & Strong       & Basic                & Limited               \\
-Hybrid search        & Built-in     & Manual configuration & Custom implementation \\
-Rerankers            & Built-in     & Manual integration   & Add-on                \\
-Router pipelines     & Native       & Manual logic         & Query engine routing  \\
-Multi-step RAG       & Explicit     & Agent-based          & Query planners        \\
-Evaluation tools     & Built-in     & External             & Limited               \\
-Streaming            & Supported    & Supported            & Supported             \\
-Async pipelines      & Supported    & Partial              & Partial               \\
-Metadata filtering   & Strong       & Supported            & Supported             \\
-Multimodal support   & Basic        & Broader ecosystem    & Early-stage           \\ \bottomrule
+\multicolumn{4}{@{}l}{\textit{Retrieval \& Pipeline}} \\
+Dense retrieval      & Native     & Native               & Native              \\
+Sparse (BM25)        & Strong     & Basic                & Limited             \\
+Hybrid search        & Built-in   & Manual configuration & Custom              \\
+Rerankers            & Built-in   & Manual integration   & Add-on              \\
+Router pipelines     & Native     & Manual logic         & Query engine routing \\
+Multi-step RAG       & Explicit   & Agent-based          & Query planners      \\
+Streaming            & Supported  & Supported            & Supported           \\
+Async pipelines      & Supported  & Partial              & Partial             \\
+Metadata filtering   & Strong     & Supported            & Supported           \\ \midrule
+\multicolumn{4}{@{}l}{\textit{Evaluation \& Production}} \\
+Retrieval metrics    & Supported  & Not native           & Limited             \\
+Faithfulness scoring & Supported  & Not native           & Limited             \\
+Groundedness tools   & Supported  & Not native           & Limited             \\
+Logging and tracing  & Built-in   & LangSmith (cloud)    & Basic               \\
+Production stability & High       & Rapid API evolution   & Moderate            \\ \midrule
+\multicolumn{4}{@{}l}{\textit{Multimodal \& Structured Data}} \\
+Image embeddings       & Supported          & Stronger ecosystem & Early-stage        \\
+Vision-language models & Manual integration & Supported          & Limited            \\
+Table QA               & Custom pipelines   & Tool-based         & Structured indexes \\
+CSV ingestion          & Supported          & Supported          & Supported          \\ \bottomrule
 \end{tabular}
-\caption{Comparison of core RAG capabilities across the evaluated frameworks.}
-\label{tab:rag-capabilities}
+\caption{Core capabilities, evaluation, and multimodal support.}
+\label{tab:capabilities}
 \end{table}
 
-\subsection{Document Store and Vector Database Support}
-A critical factor for local deployment is the range of supported document stores and vector databases. Table~\ref{tab:vector-db} presents the compatibility of each framework with commonly used backends.
+\subsection{Infrastructure: Document Stores, Vector Databases, and LLM Backends}
+Table~\ref{tab:infrastructure} combines vector database compatibility and LLM backend support.
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Backend} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Qdrant                   & Native    & Supported            & Supported \\
-Elasticsearch            & Supported & Supported            & Limited   \\
-OpenSearch               & Supported & Limited              & Limited   \\
-Milvus                   & Supported & Supported            & Supported \\
-Pinecone                 & Supported & Supported            & Supported \\
-InMemory store           & Native    & Limited              & Limited   \\
-Hybrid vector + sparse   & Strong    & Manual configuration & Limited   \\ \bottomrule
+\multicolumn{4}{@{}l}{\textit{Vector / Document Stores}} \\
+Qdrant                 & Native    & Supported            & Supported \\
+Elasticsearch          & Supported & Supported            & Limited   \\
+OpenSearch             & Supported & Limited              & Limited   \\
+Milvus                 & Supported & Supported            & Supported \\
+Pinecone               & Supported & Supported            & Supported \\
+InMemory store         & Native    & Limited              & Limited   \\
+Hybrid vector + sparse & Strong    & Manual configuration & Limited   \\ \midrule
+\multicolumn{4}{@{}l}{\textit{LLM Backends (local + cloud)}} \\
+vLLM                             & OpenAI-compatible & Supported & Supported \\
+Ollama                           & Native            & Supported & Supported \\
+HuggingFace Transformers (local) & Basic wrapper     & Supported & Supported \\
+Text Generation Inference (TGI)  & Supported         & Supported & Supported \\
+OpenAI API                       & Supported         & Supported & Supported \\ \bottomrule
 \end{tabular}
-\caption{Document store and vector database compatibility.}
-\label{tab:vector-db}
-\end{table}
-
-\subsection{LLM Backend Flexibility}
-Since the project requires fully local deployment, Table~\ref{tab:llm-backends} compares the frameworks' support for locally hosted LLM backends alongside cloud-based APIs.
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Backend} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-vLLM                              & OpenAI-compatible & Supported & Supported \\
-Ollama                            & Native            & Supported & Supported \\
-HuggingFace Transformers (local)  & Basic wrapper     & Supported & Supported \\
-Text Generation Inference (TGI)   & Supported         & Supported & Supported \\
-OpenAI API                        & Supported         & Supported & Supported \\ \bottomrule
-\end{tabular}
-\caption{LLM backend flexibility with emphasis on local deployment options.}
-\label{tab:llm-backends}
+\caption{Document store, vector database, and LLM backend compatibility.}
+\label{tab:infrastructure}
 \end{table}
 
 \subsection{Pipeline Configurability}
-A key client requirement is the ability to dynamically configure pipeline components at runtime. Table~\ref{tab:configurability} evaluates each framework's support for such configurability.
 \begin{table}[htbp]
 \centering
 \small
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Requirement} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Configurable chunking           & Component-level    & Preprocessing stage & Index configuration \\
-Dynamic retriever swapping      & Supported          & Manual chain rebuild & Index rebuild required \\
-Toggle reranker on/off          & Easy               & Manual               & Manual              \\
-Switch LLM backend              & Supported          & Supported            & Supported           \\
-Expose parameters via API       & Clean integration  & More manual setup    & Moderate            \\
-Visual pipeline graph           & Available          & Not available        & Not available       \\ \bottomrule
+Configurable chunking      & Component-level   & Preprocessing stage  & Index configuration    \\
+Dynamic retriever swapping & Supported         & Manual chain rebuild & Index rebuild required \\
+Toggle reranker on/off     & Easy              & Manual               & Manual                 \\
+Switch LLM backend         & Supported         & Supported            & Supported              \\
+Expose parameters via API  & Clean integration & More manual setup    & Moderate               \\
+Visual pipeline graph      & Available         & Not available        & Not available          \\ \bottomrule
 \end{tabular}
 \caption{Pipeline configurability for runtime customization.}
 \label{tab:configurability}
 \end{table}
 
-\subsection{Evaluation and Production Readiness}
-Table~\ref{tab:production} compares built-in evaluation tools and production-oriented features, which are essential for ensuring system reliability and answer quality.
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Retrieval metrics      & Supported  & Not native          & Limited  \\
-Faithfulness scoring   & Supported  & Not native          & Limited  \\
-Groundedness tools     & Supported  & Not native          & Limited  \\
-Logging and tracing    & Built-in   & LangSmith (cloud)   & Basic    \\
-Production stability   & High       & Rapid API evolution  & Moderate \\ \bottomrule
-\end{tabular}
-\caption{Evaluation tools and production readiness.}
-\label{tab:production}
-\end{table}
-
-\subsection{Multimodal and Structured Data Support}
-Table~\ref{tab:multimodal} presents each framework's support for multimodal inputs and structured data sources, which may be relevant for future extensions of the system.
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}lccc@{}}
-\toprule
-\textbf{Feature} & \textbf{Haystack} & \textbf{LangChain} & \textbf{LlamaIndex} \\ \midrule
-Image embeddings         & Supported          & Stronger ecosystem & Early-stage       \\
-Vision-language models   & Manual integration & Supported          & Limited           \\
-Table QA                 & Custom pipelines   & Tool-based         & Structured indexes \\
-CSV ingestion            & Supported          & Supported          & Supported          \\ \bottomrule
-\end{tabular}
-\caption{Multimodal and structured data capabilities.}
-\label{tab:multimodal}
-\end{table}
-
 %% ============================================================
-%% NEW SECTIONS: Retrieval Capabilities & Document Processing
+%% Retrieval Capabilities & Document Processing
 %% ============================================================
 
 \section{Retrieval Capabilities}
 
-This section describes the retrieval strategies available in the selected framework (Haystack) and their relevance to the project.
-
 \subsection{Dense Retrieval}
-Dense retrieval embeds both documents and queries into a shared vector space and retrieves the most similar documents using cosine or dot-product similarity.
+Embeds documents and queries into a shared vector space; retrieves by cosine/dot-product similarity. Captures semantic meaning across English and Arabic, well-suited for natural language questions.
 
 \begin{center}
 \texttt{Text $\rightarrow$ Embedder $\rightarrow$ Vector Store $\leftarrow$ Query Embedder $\leftarrow$ Query}
 \end{center}
 
-\noindent\textbf{Key advantages:}
-\begin{itemize}
-    \item Captures semantic meaning beyond exact keyword matches.
-    \item Effective across both English and Arabic corpora.
-    \item Well-suited for natural language questions and technical documents.
-\end{itemize}
-
 \subsection{Sparse Retrieval (BM25)}
-BM25 is a keyword-based retrieval method that scores documents using term frequency and inverse document frequency.
-
-\noindent\textbf{Key advantages:}
-\begin{itemize}
-    \item Highly effective for exact-match queries and precise terminology.
-    \item Performs well on Arabic formal text without requiring an embedding model.
-    \item Ideal for legal documents, code, and structured content.
-\end{itemize}
+Keyword-based scoring using term frequency. Highly effective for exact-match queries, formal Arabic text, legal documents, and structured content. No embedding model required.
 
 \subsection{Hybrid Retrieval}
-Hybrid retrieval combines dense and sparse retrieval scores into a single fused ranking, leveraging the strengths of both approaches.
+Fuses dense and sparse scores into a single ranking. Significantly improves retrieval robustness and is highly recommended for enterprise RAG.
 
 \begin{center}
 \texttt{BM25 Score + Dense Score $\rightarrow$ Fused Ranking $\rightarrow$ Top-K Documents}
 \end{center}
 
-\noindent\textbf{Key advantages:}
-\begin{itemize}
-    \item Significantly improves retrieval robustness over either method alone.
-    \item Essential for enterprise-grade RAG systems.
-    \item Highly recommended for this project.
-\end{itemize}
-
 \subsection{Reranking (Cross-Encoder)}
-Reranking introduces a second-stage model that re-evaluates the initially retrieved documents before passing them to the LLM.
+A second-stage model re-evaluates retrieved documents before passing them to the LLM. Reduces hallucinations and boosts answer quality at the cost of slight additional latency.
 
 \begin{center}
 \texttt{Retriever $\rightarrow$ Reranker $\rightarrow$ LLM}
 \end{center}
 
-\noindent\textbf{Key advantages:}
-\begin{itemize}
-    \item Reduces hallucinations by improving answer grounding.
-    \item Provides a significant quality boost to generated responses.
-\end{itemize}
-
-\noindent\textbf{Tradeoff:} Introduces slight additional latency per query.
-
 \section{Document Processing}
 
-This section covers the document processing capabilities used to prepare data for retrieval.
-
 \subsection{Chunking Strategies}
-Chunking is the process of splitting documents into smaller, retrievable pieces. The choice of chunking strategy directly affects retrieval quality---chunks that are too small lose context, while chunks that are too large introduce embedding noise.
-
-Haystack supports multiple chunking strategies, including smart and context-aware approaches. The chunk size and overlap parameters are exposed as configurable API parameters in this system. A full reference of all available splitting strategies can be found in the official documentation:\\\url{https://docs.haystack.deepset.ai/docs/documentsplitter}
+Splitting documents into retrievable pieces directly affects retrieval quality---too small loses context, too large introduces noise. Haystack supports multiple strategies including smart and context-aware approaches. Chunk size and overlap are exposed as configurable API parameters. Full reference: \\\url{https://docs.haystack.deepset.ai/docs/documentsplitter}
 
 \subsection{Metadata Filtering}
-Metadata filtering narrows the search space before retrieval by applying filters on document attributes such as language, date, or category.
-
-\noindent\textbf{Example filters:}
-\begin{itemize}
-    \item Language: only Arabic documents.
-    \item Date: only 2024 reports.
-    \item Category: only documents tagged as \textit{finance}.
-\end{itemize}
-
-\noindent When documents are indexed, metadata is attached automatically (e.g., via the \texttt{DocumentLanguageClassifier}) or manually. Components such as \texttt{MetadataRouter} can then route documents based on this metadata, and retrievers can filter results accordingly. This enables precise, performant, and domain-separated retrieval.
+Filters the search space before retrieval using document attributes (e.g., language, date, category). Metadata is attached at indexing time via components like \texttt{DocumentLanguageClassifier}, and \texttt{MetadataRouter} routes documents accordingly.
 
 \subsection{File Ingestion}
-Haystack supports ingestion of heterogeneous file formats, which is essential for enterprise systems handling diverse document types:
-\begin{itemize}
-    \item PDF
-    \item DOCX
-    \item Markdown
-    \item HTML
-    \item JSON
-    \item CSV
-\end{itemize}
+Haystack supports heterogeneous input formats: PDF, DOCX, Markdown, HTML, JSON, and CSV.
 
 \end{document}
